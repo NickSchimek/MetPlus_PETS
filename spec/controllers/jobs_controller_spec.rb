@@ -229,11 +229,28 @@ RSpec.describe JobsController, type: :controller do
           expect { post :create, job: valid_params }
             .to change(Job, :count).by(1).and change(JobSkill, :count).by(1)
         end
+
         it 'redirects to the job show view' do
           request
           expect(response).to redirect_to(job_path(Job.last))
           expect(flash[:notice]).to eq "#{valid_params[:title]} " \
                                        'has been created successfully.'
+        end
+        context 'when additional licenses are present' do
+          it 'saves the additional license' do
+            post :create, job: valid_params.merge(
+              additional_licenses: 'Some additional licenses text'
+            )
+            expect(Job.first.additional_licenses).to eq 'Some additional licenses text'
+          end
+        end
+        context 'when additional skills are present' do
+          it 'saves the additional skills' do
+            post :create, job: valid_params.merge(
+              additional_skills: 'Some additional skills text'
+            )
+            expect(Job.first.additional_skills).to eq 'Some additional skills text'
+          end
         end
       end
 
@@ -488,6 +505,26 @@ RSpec.describe JobsController, type: :controller do
           expect(response).to redirect_to(action: 'show')
           expect(flash[:info]).to eq "#{valid_params[:title]} "\
                                      'has been updated successfully.'
+        end
+
+        context 'when additional licenses are present' do
+          it 'saves the additional license' do
+            patch :update, id: job_wo_skill.id,
+                           job: valid_params.merge(
+                             additional_licenses: 'Some additional licenses text'
+                           )
+            expect(Job.first.additional_licenses).to eq 'Some additional licenses text'
+          end
+        end
+
+        context 'when additional skills are present' do
+          it 'saves the additional skill' do
+            patch :update, id: job_wo_skill.id,
+                           job: valid_params.merge(
+                             additional_skills: 'Some additional skills text'
+                           )
+            expect(Job.first.additional_skills).to eq 'Some additional skills text'
+          end
         end
       end
       describe 'unsuccessful update' do
